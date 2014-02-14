@@ -1,0 +1,18 @@
+﻿1.0
+- Code cleanup
+- Browse TV episodes by year
+- Fixed blog entries (now only posts with videos will be shown)
+
+# Fork & partial rewrite by liquex
+
+1.1
+- Code entfernt, der mit Frodo überflüssig wurde
+- Fix für Windows User
+
+1.0
+- Doppeltes Abspielen der Folgen gefixt
+- Fix für Playtube, Blog
+- Blog umgearbeitet
+- Fanart überall
+
+# Initial release by membrane

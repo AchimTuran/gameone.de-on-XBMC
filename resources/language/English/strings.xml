@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<strings>
+	<!-- general -->
+	<string id="00001">Next Page</string>
+	
+	<!-- main menu -->
+	<string id="10001">TV</string>
+	<string id="10002">Blog</string>
+	<string id="10003">Playtube</string>
+	<string id="10004">Podcast</string>
+	
+	<!-- blog menu -->
+	<string id="20001">All</string>
+</strings>
