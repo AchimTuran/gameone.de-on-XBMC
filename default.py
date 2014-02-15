@@ -1,4 +1,19 @@
+#!/usr/bin/python
 # -*- coding: iso-8859-1 -*-
+#
+#	This program is free software: you can redistribute it and/or modify
+#	it under the terms of the GNU General Public License as published by
+#	the Free Software Foundation, either version 3 of the License, or
+#	(at your option) any later version.
+#
+#	This program is distributed in the hope that it will be useful,
+#	but WITHOUT ANY WARRANTY; without even the implied warranty of
+#	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#	GNU General Public License for more details.
+#
+#	You should have received a copy of the GNU General Public License
+#	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmcvfs,xbmcaddon,os
 from xbmcswift2 import Plugin
 
@@ -22,7 +37,9 @@ def create_main_menu():
 
 
 # TV CATEGORY:
-def index_tv_years(url):
+def index_tv_years(url):			#1
+	log('Indexing TV years: ' + url)
+	
 	req = urllib2.Request(url)
 	req.add_header('User-Agent', user_agent)
 	response = urllib2.urlopen(req)
@@ -33,7 +50,9 @@ def index_tv_years(url):
 	for year in match:
 		addDir(year,'http://www.gameone.de/tv/year/'+year,2,icon_path)
 
-def index_tv_episodes(url):
+def index_tv_episodes(url):			#2
+	log('Indexing TV episodes: ' + url)
+	
 	req = urllib2.Request(url)
 	req.add_header('User-Agent', user_agent)
 	response = urllib2.urlopen(req)
@@ -44,7 +63,9 @@ def index_tv_episodes(url):
 	for episode,thumbnail,title in match:
 		addLink('Folge '+episode+' - '+title,episode,3,thumbnail)
 
-def play_tv_episode(episode):
+def play_tv_episode(episode):		#3
+	log('Playing TV episode: ' + episode)
+	
 	req = urllib2.Request('http://www.gameone.de/api/mrss/mgid%3Agameone%3Avideo%3Amtvnn.com%3Atv_show-'+episode)
 	req.add_header('User-Agent', user_agent)
 	response = urllib2.urlopen(req)
@@ -69,7 +90,9 @@ def play_tv_episode(episode):
 
 
 # BLOG CATEGORY
-def index_blog_categories(url):
+def index_blog_categories(url):		#4
+	log('Indexing blog categories: ' + url)
+	
 	addDir(plugin.get_string(20001),url,5,icon_path)
 	
 	req = urllib2.Request(url)
@@ -84,7 +107,9 @@ def index_blog_categories(url):
 		for category,url,thumbnail in match_categories:
 			addDir(category,base_url+url,5,base_url+thumbnail)
 
-def index_blog_entries(url):
+def index_blog_entries(url):		#5
+	log('Indexing blog entries: ' + url)
+	
 	req = urllib2.Request(url)
 	req.add_header('User-Agent', user_agent)
 	response = urllib2.urlopen(req)
@@ -102,18 +127,25 @@ def index_blog_entries(url):
 		response.close()
 		
 		match_videoposts = re.compile('<div class="player_swf".+?', re.DOTALL).findall(content)
+		match_blogpages = re.compile('<a class="forwards" href="(.+?)">', re.DOTALL).findall(content)
 		video_amount = len(match_videoposts)
+		pages_amount = len(match_blogpages)
 		
 		if video_amount==1:
-			match_video_id = re.compile('video_meta-(.+?)"').findall(content)
-			addLink(title,match_video_id[0],7,thumbnail)
+			if pages_amount==0:
+				match_video_id = re.compile('video_meta-(.+?)"').findall(content)
+				addLink(title,match_video_id[0],7,thumbnail)
+			else:
+				addDir(title,base_url+url,6,thumbnail)
 		elif video_amount>1:
 			addDir(title,base_url+url,6,thumbnail)
 		 
 	for url in match_next:
 		addDir(plugin.get_string(00001),base_url+url,5,icon_path)
 
-def index_blog_videos(url):
+def index_blog_videos(url):			#6
+	log('Indexing videos: ' + url)
+	
 	req = urllib2.Request(url)
 	req.add_header('User-Agent', user_agent)
 	response = urllib2.urlopen(req)
@@ -122,14 +154,20 @@ def index_blog_videos(url):
 	
 	match_video = re.compile('video_meta-(.+?)"').findall(content)
 	match_thumb = re.compile('"image", "(.+?)"', re.DOTALL).findall(content)
-	match_title = re.compile('<p><strong>(.+?):</strong><br />', re.DOTALL).findall(content)
+	match_title = re.compile('<p><strong>(.+?):</strong>', re.DOTALL).findall(content)
+	match_next	= re.compile('<a class="forwards" href="(.+?)">').findall(content)
 	
 	i = 0
 	for video_id in match_video:
 		addLink(match_title[i],video_id,7,match_thumb[i])
 		i = i + 1
 	
-def play_blog_video(video_id):
+	for url in match_next:
+		addDir(plugin.get_string(00001),url,6,icon_path)
+	
+def play_blog_video(video_id):		#7
+	log('Playing blog video: ' + video_id)
+	
 	video_url = get_video(video_id)
 	
 	item = xbmcgui.ListItem(name, thumbnailImage='', path=video_url)
@@ -138,7 +176,9 @@ def play_blog_video(video_id):
 
 
 # PLAYTUBE CATEGORY
-def index_playtube_categories(url):
+def index_playtube_categories(url):	#8
+	log('Indexing Playtube categories: ' + url)
+	
 	req = urllib2.Request(url)
 	req.add_header('User-Agent', user_agent)
 	response = urllib2.urlopen(req)
@@ -152,7 +192,9 @@ def index_playtube_categories(url):
 		if not title == 'GameTrailers':
 			addDir(title,url,9,icon_path)
 
-def index_playtube_videos(url):
+def index_playtube_videos(url):		#9
+	log('Indexing Playtube videos: ' + url)
+	
 	req = urllib2.Request(url)
 	req.add_header('User-Agent', user_agent)
 	response = urllib2.urlopen(req)
@@ -168,7 +210,9 @@ def index_playtube_videos(url):
 	for url in match_next:
 		addDir(plugin.get_string(00001),base_url+url,9,icon_path)
 
-def play_playtube_video(url):
+def play_playtube_video(url):		#10
+	log('Playing Playtube video: ' + url)
+	
 	req = urllib2.Request(url)
 	req.add_header('User-Agent', user_agent)
 	response = urllib2.urlopen(req)
@@ -181,7 +225,9 @@ def play_playtube_video(url):
 
 
 # PODCAST CATEGORY	
-def index_podcasts(url):
+def index_podcasts(url):			#11
+	log('Indexing podcasts: ' + url)
+	
 	req = urllib2.Request(url)
 	req.add_header('User-Agent', user_agent)
 	response = urllib2.urlopen(req)
@@ -195,11 +241,15 @@ def index_podcasts(url):
 		addLink(title,url,12,'http://gameone.de/images/podcast.jpg')
 
 
-def play_video(url):
+def play_video(url):				#12
+	log('Playing media: ' + url)
+	
 	item = xbmcgui.ListItem(path=url)
 	return xbmcplugin.setResolvedUrl(pluginhandle, True, item)
 
 def get_video(video_id):
+	log('Scraping video ID: ' + url)
+	
 	req = urllib2.Request("http://riptide.mtvnn.com/mediagen/"+video_id)
 	req.add_header('User-Agent', user_agent)
 	response = urllib2.urlopen(req)
@@ -255,6 +305,9 @@ def addDir(name,url,mode,iconimage=icon_path,fanart=''):
 	liz.setProperty('fanart_image',fanart)
 	ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True)
 	return ok
+	
+def log(msg):
+	print('GameOne.de scraper - %s' % msg)
 
 
 params=get_params()
