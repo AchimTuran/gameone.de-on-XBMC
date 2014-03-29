@@ -19,7 +19,7 @@ import urllib, urllib2, HTMLParser
 import xbmcgui, xbmcplugin, xbmcaddon
 
 pluginhandle	= int(sys.argv[1])
-pluginid		= 'plugin.video.gameone-fork'
+pluginid		= 'plugin.video.gameone'
 addon			= xbmcaddon.Addon(id=pluginid)
 translation		= addon.getLocalizedString
 path_plugin		= xbmc.translatePath(addon.getAddonInfo('path')).decode("utf-8")
