@@ -2,8 +2,10 @@
 <strings>
 	<!-- general -->
 	<string id="00001">Next Page</string>
+	<string id="00002">Episode</string>
 	
 	<!-- main menu -->
+	<string id="10000">Settings</string>
 	<string id="10001">TV</string>
 	<string id="10002">Blog</string>
 	<string id="10003">Playtube</string>
@@ -11,4 +13,13 @@
 	
 	<!-- blog menu -->
 	<string id="20001">All</string>
+		
+	<!-- settings -->
+	<string id="30000">General</string>
+		<string id="30010">Preferred Video Quality</string>
+			<string id="30011">270p</string>
+			<string id="30012">360p</string>
+			<string id="30013">720p</string>
+		<string id="30020">Show "Settings" in main menu</string>
+		<string id="30030">Show logo if no thumbnail is available</string>
 </strings>
