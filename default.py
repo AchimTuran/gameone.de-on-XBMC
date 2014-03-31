@@ -19,14 +19,11 @@ import urllib, urllib2, HTMLParser
 import xbmcgui, xbmcplugin, xbmcaddon
 
 pluginhandle	= int(sys.argv[1])
-pluginid		= 'plugin.video.gameone'
-addon			= xbmcaddon.Addon(id=pluginid)
+addon			= xbmcaddon.Addon()
+pluginid		= addon.getAddonInfo('id')
 translation		= addon.getLocalizedString
 path_plugin		= xbmc.translatePath(addon.getAddonInfo('path')).decode("utf-8")
 path_icon		= path_plugin + '/icon.png'
-
-# Log level - 0: None, 1: Error, 2: Debug, 3: Detailed debug
-loglevel		= 2
 
 user_agent		= 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:6.0) Gecko/20100101 Firefox/6.0'
 url_base		= 'http://www.gameone.de'
@@ -37,10 +34,10 @@ url_episode		= 'http://www.gameone.de/api/mrss/mgid%3Agameone%3Avideo%3Amtvnn.co
 url_swf			= 'http://media.mtvnservices.com/player/prime/mediaplayerprime.1.9.0.swf'
 
 
-def log(msg, level=1):
-	if (level <= loglevel):
-		print(pluginid + ': %s' % msg).encode('utf-8')
-
+def log(message, lvl=xbmc.LOGNOTICE):
+	message = (pluginid + ': %s' % message).encode('utf-8')
+	xbmc.log(msg=message, level=lvl)
+	
 def parse_html_string(string):
 	parser = HTMLParser.HTMLParser()
 	string = parser.unescape(string)
@@ -60,7 +57,7 @@ def get_parameters(string):
 				if (len(parameter_split) == 2):
 					parameters[parameter_split[0]] = urllib.unquote(parameter_split[1])
 				else:
-					log('Couldn\'t split parameters correctly (wrong amount of array elements) [Elements: ' + len(parameter_split) + ' | String:' + string + ']', 1)
+					log('Couldn\'t split parameters correctly (wrong amount of array elements) [Elements: ' + len(parameter_split) + ' | String:' + string + ']', xbmc.LOGERROR)
 		else:
 			url_split = string.split('?')
 			if (len(url_split) == 2):
@@ -70,17 +67,17 @@ def get_parameters(string):
 					if (len(parameter_split) == 2):
 						parameters[parameter_split[0]] = urllib.unquote(parameter_split[1])
 					else:
-						log('Couldn\'t split parameters correctly (wrong amount of array elements) [Elements: ' + len(parameter_split) + ' | String:' + string + ']', 1)
+						log('Couldn\'t split parameters correctly (wrong amount of array elements) [Elements: ' + len(parameter_split) + ' | String:' + string + ']', xbmc.LOGERROR)
 			else:
-				log('Couldn\'t split parameters correctly (wrong amount of array elements) [Elements: ' + len(parameter_split) + ' | String:' + string + ']', 1)
+				log('Couldn\'t split parameters correctly (wrong amount of array elements) [Elements: ' + len(parameter_split) + ' | String:' + string + ']', xbmc.LOGERROR)
 	return parameters
 
 # Function to extract contents with regular expressions either from a website or a committed string. If no regex pattern is passed, the whole content is returned.
 def parse_content(string, pattern=False, dotall=False):
-	log('Start parsing content...', 2)
+	log('Start parsing content...', xbmc.LOGDEBUG)
 	
 	if (len(re.findall('http[s]?://', string[:8])) >= 1 or string[:4] == 'www.'):
-		log('URL passed, scraping from URL: ' + string, 2)
+		log('URL passed, scraping from URL: ' + string, xbmc.LOGDEBUG)
 		
 		req = urllib2.Request(string)
 		req.add_header('User-Agent', user_agent)
@@ -90,7 +87,7 @@ def parse_content(string, pattern=False, dotall=False):
 		if isinstance(content,str):
 			content = content.decode('utf-8')
 	else:
-		log('Content passed, skip scraping...', 2)
+		log('Content passed, skip scraping...', xbmc.LOGDEBUG)
 		content = string	
 	
 	if (pattern != False):
@@ -98,10 +95,10 @@ def parse_content(string, pattern=False, dotall=False):
 			match = re.compile(pattern, re.DOTALL).findall(content)
 		else:
 			match = re.compile(pattern).findall(content)
-		log('Parsing finished - ' + str(len(match)) + ' Elements', 2)
+		log('Parsing finished - ' + str(len(match)) + ' Elements', xbmc.LOGDEBUG)
 		return match
 	else:
-		log('No pattern found, returning whole content.', 2)
+		log('No pattern found, returning whole content.', xbmc.LOGDEBUG)
 		return content
 
 # Function to add an item to the XBMC GUI
@@ -132,16 +129,16 @@ def add_menu_item(type, name, url, mode, thumbIMG='', fanart=''):
 
 
 
-class functions():
+class plugin_structure():
 	
 	def show_menu_root(self):
-		add_menu_item('ITEMTYPE_DIRECTORY', translation(10001), url_base + '/tv',		'show_menu_tv')
-		add_menu_item('ITEMTYPE_DIRECTORY', translation(10002), url_base + '/blog',		'show_menu_blog')
-		add_menu_item('ITEMTYPE_DIRECTORY', translation(10003), url_base + '/playtube',	'show_menu_playtube')
-		add_menu_item('ITEMTYPE_DIRECTORY', translation(10004), url_podcast,			'show_menu_podcasts')
+		add_menu_item('ITEMTYPE_DIRECTORY', translation(30101), url_base + '/tv',		'show_menu_tv')
+		add_menu_item('ITEMTYPE_DIRECTORY', translation(30102), url_base + '/blog',		'show_menu_blog')
+		add_menu_item('ITEMTYPE_DIRECTORY', translation(30103), url_base + '/playtube',	'show_menu_playtube')
+		add_menu_item('ITEMTYPE_DIRECTORY', translation(30104), url_podcast,			'show_menu_podcasts')
 		
 		if addon.getSetting(id='showsettings') == 'true':
-			add_menu_item('ITEMTYPE_DUMMY_DIR', translation(10000), '', 'show_settings')
+			add_menu_item('ITEMTYPE_DUMMY_DIR', translation(30100), '', 'show_settings')
 		
 		xbmcplugin.endOfDirectory(handle=pluginhandle)
 	
@@ -153,7 +150,7 @@ class functions():
 	
 	#CATEGORY: TV
 	def show_menu_tv(self):
-		log('Indexing years of TV episodes', 2)
+		log('Indexing years of TV episodes', xbmc.LOGDEBUG)
 		
 		match_years = parse_content(url, '<h4 class=\'.+?>\n([0-9]{4})\n</h4>', True)
 		for year in match_years:
@@ -163,19 +160,18 @@ class functions():
 	
 	
 	def show_menu_tv_episodes(self):
-		log('Indexing TV episodes: ' + url, 2)
+		log('Indexing TV episodes: ' + url, xbmc.LOGDEBUG)
 		
 		match_episodes = parse_content(url, '<a href=".*?/tv/([0-9]+)" class="image_link"><img alt=".+?" src="(.+?)" /></a>\n<h5>\n<a href=\'.+?\' title=\'(.+?)\'', True)
 		for episode,thumbnail,title in match_episodes:
-			title = translation(00002) + ' ' + episode + ' - ' + title
-			log(title, 3)
+			title = translation(30002) + ' ' + episode + ' - ' + title
 			add_menu_item('ITEMTYPE_VIDEO', title, url_episode + episode, 'play_tv_episode', thumbnail)
 		
 		xbmcplugin.endOfDirectory(handle=pluginhandle)
 	
 	
 	def play_tv_episode(self):
-		log('Playing TV episode: ' + url, 2)
+		log('Playing TV episode: ' + url, xbmc.LOGNOTICE)
 		
 		match_video_xml = parse_content(url, "<media:content.+?url='(.+?)'></media:content>")
 		for video_xml in match_video_xml:
@@ -183,7 +179,7 @@ class functions():
 			try:
 				video_quality = match_video[int(addon.getSetting(id='videoquality'))]
 			except:
-				log('Couldn\'t select stream quality: ' + addon.getSetting(id='videoquality') + ', falling back to highest.', 1)
+				log('Couldn\'t select stream quality: ' + addon.getSetting(id='videoquality') + ', falling back to highest.', xbmc.LOGNOTICE)
 				video_quality = match_video[-1]
 			video_url = video_quality + ' swfurl=' + url_swf + ' swfvfy=true' + ' pageUrl=www.gameone.de app=ondemand?ovpfv=2.1.4'
 			
@@ -197,9 +193,9 @@ class functions():
 	
 	#CATEGORY: BLOG
 	def show_menu_blog(self):
-		log('Indexing blog categories: ' + url, 2)
+		log('Indexing blog categories: ' + url, xbmc.LOGDEBUG)
 		
-		add_menu_item('ITEMTYPE_DIRECTORY', translation(20001), url, 'show_menu_blog_entries')
+		add_menu_item('ITEMTYPE_DIRECTORY', translation(30200), url, 'show_menu_blog_entries')
 		
 		match_teasers = parse_content(url, '<ul class="teasers">(.+?)</ul>', True)
 		for teaser in match_teasers:
@@ -211,7 +207,7 @@ class functions():
 	
 	
 	def show_menu_blog_entries(self):
-		log('Indexing blog entries: ' + url, 2)
+		log('Indexing blog entries: ' + url, xbmc.LOGDEBUG)
 
 		match_posts	= parse_content(url, '<li class="post teaser_box teaser".+?<div class=\'overlay\'.+?<a href="(.+?)">(.+?)</a>.+?<a class=\'image_link\' href=\'.+?\'>\n<img .+?src="(.+?)"', True)
 		match_next	= parse_content(url, '<a class="next_page" rel="next" href="(.+?)">', True)
@@ -233,13 +229,13 @@ class functions():
 				add_menu_item('ITEMTYPE_DIRECTORY', title, url_base + post_url, 'show_menu_blog_videos', thumbnail)
 		
 		for url_next in match_next:
-			add_menu_item('ITEMTYPE_DIRECTORY', translation(00001), url_base + url_next, 'show_menu_blog_entries')
+			add_menu_item('ITEMTYPE_DIRECTORY', translation(30001), url_base + url_next, 'show_menu_blog_entries')
 		
 		xbmcplugin.endOfDirectory(handle=pluginhandle)
 		
 		
 	def show_menu_blog_videos(self):
-		log('Indexing blog videos: ' + url, 2)
+		log('Indexing blog videos: ' + url, xbmc.LOGDEBUG)
 		
 		match_content 	= parse_content(url)
 		match_video		= parse_content(match_content, 'video_meta-(.+?)"')
@@ -253,13 +249,13 @@ class functions():
 			i = i + 1
 		
 		for url_next in match_next:
-			add_menu_item('ITEMTYPE_DIRECTORY', translation(00001), url_next, 'show_menu_blog_videos')
+			add_menu_item('ITEMTYPE_DIRECTORY', translation(30001), url_next, 'show_menu_blog_videos')
 			
 		xbmcplugin.endOfDirectory(handle=pluginhandle)
 
 
 	def play_blog_video(self):
-		log('Playing blog video: ' + url, 2)
+		log('Playing blog video: ' + url, xbmc.LOGNOTICE)
 		
 		url_video = self.get_video(url)
 		item = xbmcgui.ListItem(path=url_video)
@@ -272,7 +268,7 @@ class functions():
 
 	#CATEGORY: PLAYTUBE
 	def show_menu_playtube(self):
-		log('Indexing Playtube categories', 2)
+		log('Indexing Playtube categories', xbmc.LOGDEBUG)
 		
 		match_container	= parse_content(url, "<ul class='channels'>(.+?)</ul>", True)[0]
 		match_channels	= parse_content(match_container, "<a class='name' href='(.+?)' title='(.+?)'>", True)
@@ -285,7 +281,7 @@ class functions():
 
 
 	def show_menu_playtube_videos(self):
-		log('Indexing Playtube videos', 2)
+		log('Indexing Playtube videos', xbmc.LOGDEBUG)
 		
 		match_content	= parse_content(url)
 		match_video		= parse_content(match_content, '<h3><a href="(.+?)">(.+?)</a></h3>\n<p><a href=".+?">.+?</a></p>\n</div>\n<a href=".+?" class="img_link"><img alt=".+?" src="(.+?)" /></a>', True)
@@ -295,13 +291,13 @@ class functions():
 			add_menu_item('ITEMTYPE_VIDEO', title, url_video, 'play_playtube_video', thumbnail)
 			
 		for url_next in match_next:
-			add_menu_item('ITEMTYPE_DIRECTORY', translation(00001), url_base + url_next, 'show_menu_playtube_videos')
+			add_menu_item('ITEMTYPE_DIRECTORY', translation(30001), url_base + url_next, 'show_menu_playtube_videos')
 
 		xbmcplugin.endOfDirectory(handle=pluginhandle)
 		
 	
 	def play_playtube_video(self):
-		log('Playing Playtube video: ' + url, 2)
+		log('Playing Playtube video: ' + url, xbmc.LOGDEBUG)
 		
 		match_video = parse_content(url, 'video_meta-(.+?)"')[0]
 		url_video = self.get_video(match_video)
@@ -325,7 +321,7 @@ class functions():
 		
 	#GENERAL FUNCTIONS:
 	def play_media(self, url_media=''):
-		log('Playing media: ' + url_media, 2)
+		log('Playing media: ' + url_media, xbmc.LOGNOTICE)
 		
 		if not url_media:
 			url_media = url
@@ -336,13 +332,13 @@ class functions():
 
 
 	def get_video(self, video_id):
-		log('Scraping video ID: ' + url, 2)
+		log('Scraping video ID: ' + url, xbmc.LOGDEBUG)
 		
 		match_video = parse_content('http://riptide.mtvnn.com/mediagen/' + video_id, '<src>(.+?)</src>')
 		try:
 			video_quality = match_video[int(addon.getSetting(id='videoquality'))]
 		except:
-			log('Couldn\'t select stream quality: ' + addon.getSetting(id='videoquality') + ', falling back to highest.', 1)
+			log('Couldn\'t select stream quality: ' + addon.getSetting(id='videoquality') + ', falling back to highest.', xbmc.LOGNOTICE)
 			video_quality = match_video[-1]
 		video = video_quality + ' swfurl=' + url_swf + ' swfvfy=true' + ' pageUrl=www.gameone.de app=ondemand?ovpfv=2.1.4'
 		return video
@@ -354,7 +350,7 @@ parameters	= get_parameters(sys.argv[2])
 url			= parameters.get('url')
 mode		= parameters.get('mode')
 
-navigate = functions()
+navigate = plugin_structure()
 
 if not sys.argv[2]:
 	navigate.show_menu_root()
@@ -367,4 +363,4 @@ else:
 		except:
 			call_func()
 	except:
-		log('Error: Failed executing function! [Mode: ' + mode + ']', 1)
+		log('Error: Failed executing function! [Mode: ' + mode + ']', xbmc.LOGERROR)

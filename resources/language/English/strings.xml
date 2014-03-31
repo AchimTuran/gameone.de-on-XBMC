@@ -1,25 +1,25 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <strings>
 	<!-- general -->
-	<string id="00001">Next Page</string>
-	<string id="00002">Episode</string>
+	<string id="30001">Next Page</string>
+	<string id="30002">Episode</string>
 	
 	<!-- main menu -->
-	<string id="10000">Settings</string>
-	<string id="10001">TV</string>
-	<string id="10002">Blog</string>
-	<string id="10003">Playtube</string>
-	<string id="10004">Podcast</string>
+	<string id="30100">Settings</string>
+	<string id="30101">TV</string>
+	<string id="30102">Blog</string>
+	<string id="30103">Playtube</string>
+	<string id="30104">Podcast</string>
 	
 	<!-- blog menu -->
-	<string id="20001">All</string>
+	<string id="30200">All</string>
 		
 	<!-- settings -->
-	<string id="30000">General</string>
-		<string id="30010">Preferred Video Quality</string>
-			<string id="30011">270p</string>
-			<string id="30012">360p</string>
-			<string id="30013">720p</string>
-		<string id="30020">Show "Settings" in main menu</string>
-		<string id="30030">Show logo if no thumbnail is available</string>
+	<string id="30300">General</string>
+		<string id="30310">Preferred Video Quality</string>
+			<string id="30311">270p</string>
+			<string id="30312">360p</string>
+			<string id="30313">720p</string>
+		<string id="30320">Show "Settings" in main menu</string>
+		<string id="30330">Show logo if no thumbnail is available</string>
 </strings>

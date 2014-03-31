@@ -1,5 +1,8 @@
+2.0.1 (31.03.2014)
+- Several bugfixes
+
 2.0.0 (29.03.2014)
-- Fixed playback for Windows (hopefully!)
+- Fixed playback for Windows
 - Added preferred video quality selection in settings
 - Further code rewrite
 
