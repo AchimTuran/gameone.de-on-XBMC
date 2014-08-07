@@ -46,8 +46,10 @@ def parse_html_string(string):
 def build_url(string):
 	return sys.argv[0] + '?' + urllib.urlencode(string)
 
-# Function to convert parameters in a URL to a dict
+
 def get_parameters(string):
+	''' Convert parameters in a URL to a dict. '''
+	
 	parameters = {}
 	if string:
 		if (string[:1] == '?'):
@@ -72,8 +74,10 @@ def get_parameters(string):
 				log('Couldn\'t split parameters correctly (wrong amount of array elements) [Elements: ' + len(parameter_split) + ' | String:' + string + ']', xbmc.LOGERROR)
 	return parameters
 
-# Function to extract contents with regular expressions either from a website or a committed string. If no regex pattern is passed, the whole content is returned.
+
 def parse_content(string, pattern=False, dotall=False):
+	''' Extract contents with regex from either a website or a comitted string. If no regex pattern is passed, the whole content is returned. '''
+	
 	log('Start parsing content...', xbmc.LOGDEBUG)
 	
 	if (len(re.findall('http[s]?://', string[:8])) >= 1 or string[:4] == 'www.'):
@@ -101,8 +105,10 @@ def parse_content(string, pattern=False, dotall=False):
 		log('No pattern found, returning whole content.', xbmc.LOGDEBUG)
 		return content
 
-# Function to add an item to the XBMC GUI
+
 def add_menu_item(type, name, url, mode, thumbIMG='', fanart=''):
+	''' Add an item to the XBMC GUI. '''
+	
 	if not thumbIMG and addon.getSetting(id='showlogo') == 'true':
 		thumbIMG = path_icon
 	
@@ -147,12 +153,11 @@ class plugin_structure():
 		return xbmc.executebuiltin('Addon.OpenSettings(' + pluginid + ')')
 	
 	
-	
 	#CATEGORY: TV
 	def show_menu_tv(self):
 		log('Indexing years of TV episodes', xbmc.LOGDEBUG)
 		
-		match_years = parse_content(url, '<h4 class=\'.+?>\n([0-9]{4})\n</h4>', True)
+		match_years = parse_content(url, '<a href="/tv\?year=([0-9]{4})">[0-9]{4}</a>', True)
 		for year in match_years:
 			add_menu_item('ITEMTYPE_DIRECTORY', year, url_year + year, 'show_menu_tv_episodes')
 			
@@ -162,7 +167,7 @@ class plugin_structure():
 	def show_menu_tv_episodes(self):
 		log('Indexing TV episodes: ' + url, xbmc.LOGDEBUG)
 		
-		match_episodes = parse_content(url, '<a href=".*?/tv/([0-9]+)" class="image_link"><img alt=".+?" src="(.+?)" /></a>\n<h5>\n<a href=\'.+?\' title=\'(.+?)\'', True)
+		match_episodes = parse_content(url, '<a href="/tv/([0-9]+)" class="image_link"><img alt=".+?" src="(.+?)" /></a>\n<h5>\n<a href=\'.+?\' title=\'(.+?)\'', True)
 		for episode,thumbnail,title in match_episodes:
 			title = translation(30002) + ' ' + episode + ' - ' + title
 			add_menu_item('ITEMTYPE_VIDEO', title, url_episode + episode, 'play_tv_episode', thumbnail)

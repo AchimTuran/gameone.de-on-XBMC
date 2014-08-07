@@ -1,3 +1,6 @@
+2.0.2 (07.08.2014)
+- Fixed TV category not showing anything (thanks to fluse)
+
 2.0.1 (31.03.2014)
 - Several bugfixes
 
