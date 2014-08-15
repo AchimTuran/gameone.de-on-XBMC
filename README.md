@@ -1,7 +1,7 @@
 gameone.de on XBMC
 ==================
 
-Watch your favorite gaming show on XBMC.
+Watch your favourite gaming show on XBMC.
 
 Contributors
 ----------------

@@ -17,6 +17,7 @@
 import os, re, sys
 import urllib, urllib2, HTMLParser
 import xbmcgui, xbmcplugin, xbmcaddon
+import xml.etree.ElementTree as ET
 
 pluginhandle	= int(sys.argv[1])
 addon			= xbmcaddon.Addon()
@@ -179,14 +180,21 @@ class plugin_structure():
 		log('Playing TV episode: ' + url, xbmc.LOGNOTICE)
 		
 		match_video_xml = parse_content(url, "<media:content.+?url='(.+?)'></media:content>")
-		for video_xml in match_video_xml:
-			match_video = parse_content(video_xml, '<src>(.+?)</src>')
-			try:
-				video_quality = match_video[int(addon.getSetting(id='videoquality'))]
-			except:
-				log('Couldn\'t select stream quality: ' + addon.getSetting(id='videoquality') + ', falling back to highest.', xbmc.LOGNOTICE)
-				video_quality = match_video[-1]
-			video_url = video_quality + ' swfurl=' + url_swf + ' swfvfy=true' + ' pageUrl=www.gameone.de app=ondemand?ovpfv=2.1.4'
+		for video_xml_url in match_video_xml:
+			match_video = str(parse_content(video_xml_url))
+			xml_root = ET.fromstring(match_video)
+			
+			dict_resolutions = {}
+			for stream in xml_root.findall('./video/item/rendition'):
+				dict_resolutions[int(stream.attrib.get('height'))] = stream.find('src').text
+			
+			log('Selecting stream quality: ' + str(resolutions.SETTINGS.get(int(addon.getSetting(id='videoquality')))), xbmc.LOGDEBUG)
+			video_file = dict_resolutions.get(resolutions.SETTINGS.get(int(addon.getSetting(id='videoquality'))))
+			if video_file == None:
+				log('Couldn\'t select stream quality: ' + str(resolutions.SETTINGS.get(int(addon.getSetting(id='videoquality')))) + ', falling back to highest.', xbmc.LOGNOTICE)
+				video_file = dict_resolutions[max(dict_resolutions)]
+			
+			video_url = video_file + ' swfurl=' + url_swf + ' swfvfy=true' + ' pageUrl=www.gameone.de app=ondemand?ovpfv=2.1.4'
 			
 			item = xbmcgui.ListItem(path=video_url)
 			item.setProperty('mimetype', 'video/x-flv')
@@ -339,16 +347,28 @@ class plugin_structure():
 	def get_video(self, video_id):
 		log('Scraping video ID: ' + url, xbmc.LOGDEBUG)
 		
-		match_video = parse_content('http://riptide.mtvnn.com/mediagen/' + video_id, '<src>(.+?)</src>')
-		try:
-			video_quality = match_video[int(addon.getSetting(id='videoquality'))]
-		except:
-			log('Couldn\'t select stream quality: ' + addon.getSetting(id='videoquality') + ', falling back to highest.', xbmc.LOGNOTICE)
-			video_quality = match_video[-1]
-		video = video_quality + ' swfurl=' + url_swf + ' swfvfy=true' + ' pageUrl=www.gameone.de app=ondemand?ovpfv=2.1.4'
-		return video
+		match_video = str(parse_content('http://riptide.mtvnn.com/mediagen/' + video_id))
+		xml_root = ET.fromstring(match_video)
+		
+		dict_resolutions = {}
+		for stream in xml_root.findall('./video/item/rendition'):
+			dict_resolutions[int(stream.attrib.get('height'))] = stream.find('src').text
+		
+		log('Selecting stream quality: ' + str(resolutions.SETTINGS.get(int(addon.getSetting(id='videoquality')))), xbmc.LOGDEBUG)
+		video_file = dict_resolutions.get(resolutions.SETTINGS.get(int(addon.getSetting(id='videoquality'))))
+		if video_file == None:
+			log('Couldn\'t select stream quality: ' + str(resolutions.SETTINGS.get(int(addon.getSetting(id='videoquality')))) + ', falling back to highest.', xbmc.LOGNOTICE)
+			video_file = dict_resolutions[max(dict_resolutions)]
+			
+		return video_file + ' swfurl=' + url_swf + ' swfvfy=true' + ' pageUrl=www.gameone.de app=ondemand?ovpfv=2.1.4'
 
-
+		
+class resolutions():
+	''' This class shouldn't be instantiated. '''
+	
+	SETTINGS		= { 0 : 270,
+						1 : 360,
+						2 : 720		}
 
 # Get parameters
 parameters	= get_parameters(sys.argv[2]) 
