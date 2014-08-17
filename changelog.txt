@@ -1,5 +1,5 @@
 2.0.3 (15.08.2014)
-- Fixed wrong resolution getting selected with some videos
+- Fixed selection of a wrong resolution in some cases
 
 2.0.2 (07.08.2014)
 - Fixed TV category not showing anything (thanks to fluse)
