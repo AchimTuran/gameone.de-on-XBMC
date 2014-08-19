@@ -168,7 +168,7 @@ class plugin_structure():
 	def show_menu_tv_episodes(self):
 		log('Indexing TV episodes: ' + url, xbmc.LOGDEBUG)
 		
-		match_episodes = parse_content(url, '<a href="/tv/([0-9]+)" class="image_link"><img alt=".+?" src="(.+?)" /></a>\n<h5>\n<a href=\'.+?\' title=\'(.+?)\'', True)
+		match_episodes = parse_content(url, '<a href="/tv/([0-9]+)" class="image_link"><img.+?/><noscript><img src="(.+?)".+?/></noscript></a>\n<h5>\n<a href=\'.+?\' title=\'(.+?)\'', True)
 		for episode,thumbnail,title in match_episodes:
 			title = translation(30002) + ' ' + episode + ' - ' + title
 			add_menu_item('ITEMTYPE_VIDEO', title, url_episode + episode, 'play_tv_episode', thumbnail)
