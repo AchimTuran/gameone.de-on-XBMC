@@ -1,3 +1,9 @@
+2.0.5 (21.08.2014)
+- Removed Playtube category for now
+- Fixed blog category thumbnails
+- Fixed blog videos not playing
+- Improved playback for some videos
+
 2.0.4 (19.08.2014)
 - Fixed TV category again
 
