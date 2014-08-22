@@ -1,3 +1,6 @@
+2.0.6 (22.08.2014)
+- Fixed crashes caused by the last update
+
 2.0.5 (21.08.2014)
 - Removed Playtube category for now
 - Fixed blog category thumbnails

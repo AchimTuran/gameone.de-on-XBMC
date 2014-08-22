@@ -95,14 +95,15 @@ def parse_content(string, pattern=False, dotall=False):
 		content = string	
 	
 	if (pattern != False):
+		log('Expression: ' + str(pattern), xbmc.LOGDEBUG)
 		if (dotall == True):
 			match = re.compile(pattern, re.DOTALL).findall(content)
 		else:
 			match = re.compile(pattern).findall(content)
-		log('Parsing finished - ' + str(len(match)) + ' Elements', xbmc.LOGDEBUG)
+		log(str(len(match)) + ' matches', xbmc.LOGDEBUG)
 		return match
 	else:
-		log('No pattern found, returning whole content.', xbmc.LOGDEBUG)
+		log('No expression found, returning whole content.', xbmc.LOGDEBUG)
 		return content
 
 
@@ -195,7 +196,6 @@ class plugin_structure():
 			video_url = video_file + ' swfurl=' + url_swf + ' swfvfy=true' + ' pageUrl=www.gameone.de app=ondemand?ovpfv=2.1.4'
 			
 			item = xbmcgui.ListItem(path=video_url)
-			item.setProperty('mimetype', 'video/x-flv')
 			return xbmcplugin.setResolvedUrl(pluginhandle, True, item)
 
 		xbmcplugin.endOfDirectory(handle=pluginhandle)
@@ -274,7 +274,7 @@ class plugin_structure():
 		
 		url_video = self.get_video(url)
 		item = xbmcgui.ListItem(path=url_video)
-		item.setProperty('mimetype', 'video/x-flv')
+		#item.setProperty('mimetype', 'video/x-flv')
 		xbmcplugin.setResolvedUrl(pluginhandle, True, item)
 		
 		xbmcplugin.endOfDirectory(handle=pluginhandle)
